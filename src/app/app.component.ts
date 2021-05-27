@@ -47,8 +47,15 @@ export class AppComponent {
     if(!event.container.data || !event.previousContainer.data){
       return;
     }
-    // console.log(event)
-    // const item = event.previousContainer.data[event.previousIndex];
+    console.log(event)
+    const item = event.previousContainer.data[event.previousIndex];
+    this.store.firestore.runTransaction(() => {
+      const promise = Promise.all([
+        this.store.collection(event.previousContainer.id).doc(item.id).delete(),
+        this.store.collection(event.container.id).add(item)
+      ]);
+      return promise;
+    })
     transferArrayItem(
       event.previousContainer.data,
       event.container.data,
@@ -75,6 +82,7 @@ export class AppComponent {
         // }else{
         //   dataList[taskIndex] = result.task;
         // }
+        console.log(result,list)
         if(result.delete){
           this.store.collection(list).doc(task.id).delete();
         }else{
